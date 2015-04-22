@@ -15,12 +15,21 @@
 /* Asserts with message as content of assertion. */
 #define M5Assert(CASE) NSAssert(CASE, @"%@", M5MacroStringify(CASE));
 
-/* Asserts that object is not nil, returns object. */
+/* Asserts that object is not nil or NSNull, returns object. */
 #define M5AssertValue(OBJECT) \
 ({ \
     id M5AssertValue = OBJECT; \
-    NSAssert(M5AssertValue != nil, @"'%@' can't be nil.", M5MacroStringify(OBJECT)); \
+    NSAssert(M5NotNull(M5AssertValue), @"'%@' can't be nil or NSNull.", M5MacroStringify(OBJECT)); \
     M5AssertValue; \
+})
+
+/* Asserts that object (string, array, dictionary, etc.) is not null/empty. */
+#define M5AssertNotEmpty(OBJECT) \
+({ \
+    id M5AssertNotEmpty = OBJECT; \
+    M5AssertValue(M5AssertNotEmpty); \
+    NSAssert(M5NotEmpty(M5AssertNotEmpty), @"'%@' can't be empty.", M5MacroStringify(OBJECT)); \
+    M5AssertNotEmpty; \
 })
 
 /* Asserts that pointer is not NULL, returns pointer. */
@@ -58,14 +67,6 @@
     M5AssertProtocol; \
 })
 
-/* Asserts that object (string, array, dictionary, etc.) is not null/empty. */
-#define M5AssertNotEmpty(OBJECT) \
-({ \
-    id M5AssertNotEmpty = OBJECT; \
-    NSAssert(M5NotEmpty(M5AssertNotEmpty), @"'%@' can't be empty.", M5MacroStringify(OBJECT)); \
-    M5AssertNotEmpty; \
-})
-
 /* Asserts that the objects are each subclasses of one of the provided classes, returns object. */
 #define M5AssertContentClass(OBJECTS, ...) \
 ({ \
@@ -94,15 +95,15 @@
 })
 #else
 #define M5Assert(CASE)
-#define M5AssertValue(OBJECT) OBJECT
-#define M5AssertCValue(OBJECT) OBJECT
-#define M5AssertClass(OBJECT, ...) OBJECT
-#define M5AssertProperty(OBJECT, PROPERTY, ...) OBJECT
-#define M5AssertProtocol(OBJECT, ...) OBJECT
-#define M5AssertNotEmpty(OBJECT) OBJECT
-#define M5AssertContentClass(OBJECTS, ...) OBJECTS
-#define M5AssertContentProperty(OBJECTS, PROPERTY, ...) OBJECTS
-#define M5AssertContentProtocol(OBJECTS, ...) OBJECTS
+#define M5AssertValue(OBJECT) ({ OBJECT; })
+#define M5AssertNotEmpty(OBJECT) ({ OBJECT; })
+#define M5AssertCValue(OBJECT) ({ OBJECT; })
+#define M5AssertClass(OBJECT, ...) ({ OBJECT; })
+#define M5AssertProperty(OBJECT, PROPERTY, ...) ({ OBJECT; })
+#define M5AssertProtocol(OBJECT, ...) ({ OBJECT; })
+#define M5AssertContentClass(OBJECTS, ...) ({ OBJECTS; })
+#define M5AssertContentProperty(OBJECTS, PROPERTY, ...) ({ OBJECTS; })
+#define M5AssertContentProtocol(OBJECTS, ...) ({ OBJECTS; })
 #endif
 
 /* Get selector name (e.g. for KVO use) in a safe way. */
