@@ -174,10 +174,16 @@ extern BOOL M5IsNull(id object);
 /** Returns not-M5IsNull. */
 extern BOOL M5NotNull(id object);
 
+/** Returns object if M5NotNull, else nil. */
+extern id M5NilIfNull(id object);
+
 /** Returns whether M5IsNull or object has a 'count' which is 0, or a 'length' which is 0. */
 extern BOOL M5IsEmpty(id object);
 
 /** Returns not-M5IsEmpty. */
 extern BOOL M5NotEmpty(id object);
+
+/** Returns object if M5NotEmpty, else nil. */
+extern id M5NilIfEmpty(id object);
 
 #pragma mark -

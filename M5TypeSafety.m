@@ -176,6 +176,10 @@ BOOL M5NotNull(id object) {
     return !M5IsNull(object);
 }
 
+id M5NilIfNull(id object) {
+    return M5NotNull(object) ? object : nil;
+}
+
 BOOL M5IsEmpty(id object) {
     if (M5IsNull(object)) {
         return YES;
@@ -202,6 +206,10 @@ BOOL M5IsEmpty(id object) {
 
 BOOL M5NotEmpty(id object) {
     return !M5IsEmpty(object);
+}
+
+id M5NilIfEmpty(id object) {
+    return M5NotEmpty(object) ? object : nil;
 }
 
 #pragma mark -
