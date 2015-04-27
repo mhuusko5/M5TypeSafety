@@ -15,7 +15,7 @@
 /* Asserts with message as content of assertion. */
 #define M5Assert(CASE) NSAssert(CASE, @"%@", M5MacroStringify(CASE));
 
-/* Asserts that object is not nil or NSNull, returns object. */
+/* Asserts that object is not nil or NSNull. Returns object. */
 #define M5AssertValue(OBJECT) \
 ({ \
     id M5AssertValue = OBJECT; \
@@ -23,16 +23,25 @@
     M5AssertValue; \
 })
 
-/* Asserts that object (string, array, dictionary, etc.) is not null/empty. */
+/* Asserts that object (string, array, dictionary, etc.) is not nil/NSNull/empty. Returns object. */
 #define M5AssertNotEmpty(OBJECT) \
 ({ \
     id M5AssertNotEmpty = OBJECT; \
-    M5AssertValue(M5AssertNotEmpty); \
-    NSAssert(M5NotEmpty(M5AssertNotEmpty), @"'%@' can't be empty.", M5MacroStringify(OBJECT)); \
+    NSAssert(M5NotEmpty(M5AssertNotEmpty), @"'%@' can't be null/empty.", M5MacroStringify(OBJECT)); \
     M5AssertNotEmpty; \
 })
 
-/* Asserts that pointer is not NULL, returns pointer. */
+/* Asserts that object is not empty, if it is not null. Returns object. */
+#define M5AssertNotEmptyIfValue(OBJECT) \
+({ \
+    id M5AssertNotEmptyIfValue = OBJECT; \
+    if (M5AssertNotEmptyIfValue) { \
+        NSAssert(M5NotEmpty(M5AssertNotEmptyIfValue), @"'%@' can't be empty.", M5MacroStringify(OBJECT)); \
+    } \
+    M5AssertNotEmptyIfValue; \
+})
+
+/* Asserts that pointer is not NULL. Returns pointer. */
 #define M5AssertCValue(OBJECT) \
 ({ \
     void *M5AssertCValue = OBJECT; \
@@ -40,70 +49,131 @@
     M5AssertCValue; \
 })
 
-/* Asserts that object is subclass of one of the provided classes, returns object. */
+/* Asserts that object is not nil/NSNull, and is subclass of one of the provided classes. Returns object. */
 #define M5AssertClass(OBJECT, ...) \
 ({ \
     id M5AssertClass = OBJECT; \
-    M5AssertValue(M5AssertClass); \
-    NSAssert(M5ObjectIsOfAnyClass(M5AssertClass, @[__VA_ARGS__]), @"'%@' must be one of: %@", M5MacroStringify(OBJECT), M5ClassesDescription(@[__VA_ARGS__])); \
+    NSAssert(M5NotNull(M5AssertClass) && M5ObjectIsOfAnyClass(M5AssertClass, @[__VA_ARGS__]), @"'%@' must (not be null) be one of: %@", M5MacroStringify(OBJECT), M5ClassesDescription(@[__VA_ARGS__])); \
     M5AssertClass; \
 })
 
-/* Asserts that property on object equals one of the provided values, returns object. */
+/* Asserts that object is subclass of one of the provided classes if it is not null. Returns object. */
+#define M5AssertClassIfValue(OBJECT, ...) \
+({ \
+    id M5AssertClassIfValue = OBJECT; \
+    if (M5AssertClassIfValue) { \
+        NSAssert(M5NotNull(M5AssertClassIfValue) && M5ObjectIsOfAnyClass(M5AssertClassIfValue, @[__VA_ARGS__]), @"'%@' must be one of: %@", M5MacroStringify(OBJECT), M5ClassesDescription(@[__VA_ARGS__])); \
+    } \
+    M5AssertClassIfValue; \
+})
+
+/* Asserts that property on object (and that object is not nil/NSNull) equals one of the provided values. Returns object. */
 #define M5AssertProperty(OBJECT, PROPERTY, ...) \
 ({ \
     id M5AssertProperty = OBJECT; \
-    M5AssertValue(M5AssertProperty); \
-    NSAssert(M5ObjectPropertyEqualsAnyValue(M5AssertProperty, PROPERTY, @[__VA_ARGS__]), @"'%@' on '%@' must equal one of: %@", NSStringFromSelector(PROPERTY), M5MacroStringify(OBJECT), M5ObjectsDescription(@[__VA_ARGS__])); \
+    NSAssert(M5NotNull(M5AssertProperty) && M5ObjectPropertyEqualsAnyValue(M5AssertProperty, PROPERTY, @[__VA_ARGS__]), @"'%@' on '%@' (which must not be null) must equal one of: %@", NSStringFromSelector(PROPERTY), M5MacroStringify(OBJECT), M5ObjectsDescription(@[__VA_ARGS__])); \
     M5AssertProperty; \
 })
 
-/* Asserts that object conforms to all of the provided protocols, returns object. */
+/* Asserts that property on object (if the object is not null) equals one of the provided values. Returns object. */
+#define M5AssertPropertyIfValue(OBJECT, PROPERTY, ...) \
+({ \
+    id M5AssertPropertyIfValue = OBJECT; \
+    if (M5AssertPropertyIfValue) { \
+        NSAssert(M5NotNull(M5AssertPropertyIfValue) && M5ObjectPropertyEqualsAnyValue(M5AssertPropertyIfValue, PROPERTY, @[__VA_ARGS__]), @"'%@' on '%@' must equal one of: %@", NSStringFromSelector(PROPERTY), M5MacroStringify(OBJECT), M5ObjectsDescription(@[__VA_ARGS__])); \
+    } \
+    M5AssertPropertyIfValue; \
+})
+
+/* Asserts that object is not nil/NSNull and conforms to all of the provided protocols. Returns object. */
 #define M5AssertProtocol(OBJECT, ...) \
 ({ \
     id M5AssertProtocol = OBJECT; \
-    M5AssertValue(M5AssertProtocol); \
-    NSAssert(M5ObjectConformsToProtocols(M5AssertProtocol, @[__VA_ARGS__]), @"'%@' must conform to all of: %@", M5MacroStringify(OBJECT), M5ProtocolsDescription(@[__VA_ARGS__])); \
+    NSAssert(M5NotNull(M5AssertProtocol) && M5ObjectConformsToProtocols(M5AssertProtocol, @[__VA_ARGS__]), @"'%@' must (not be null) conform to all of: %@", M5MacroStringify(OBJECT), M5ProtocolsDescription(@[__VA_ARGS__])); \
     M5AssertProtocol; \
 })
 
-/* Asserts that the objects are each subclasses of one of the provided classes, returns object. */
+/* Asserts that object (if not nil/NSNull) conforms to all of the provided protocols. Returns object. */
+#define M5AssertProtocolIfValue(OBJECT, ...) \
+({ \
+    id M5AssertProtocolIfValue = OBJECT; \
+    if (M5AssertProtocolIfValue) { \
+        NSAssert(M5NotNull(M5AssertProtocolIfValue) && M5ObjectConformsToProtocols(M5AssertProtocolIfValue, @[__VA_ARGS__]), @"'%@' must conform to all of: %@", M5MacroStringify(OBJECT), M5ProtocolsDescription(@[__VA_ARGS__])); \
+    } \
+    M5AssertProtocolIfValue; \
+})
+
+/* Asserts that the (not empty) objects are each subclasses of one of the provided classes, returns object. */
 #define M5AssertContentClass(OBJECTS, ...) \
 ({ \
     id<NSFastEnumeration> M5AssertContentClass = OBJECTS; \
-    M5AssertNotEmpty(M5AssertContentClass); \
-    NSAssert(M5ObjectsAreOfAnyClass(M5AssertContentClass, @[__VA_ARGS__]), @"Contents of '%@' must be one of: %@", M5MacroStringify(OBJECTS), M5ClassesDescription(@[__VA_ARGS__])); \
+    NSAssert(M5NotEmpty(M5AssertContentClass) && M5ObjectsAreOfAnyClass(M5AssertContentClass, @[__VA_ARGS__]), @"Contents of (not empty!) '%@' must be one of: %@", M5MacroStringify(OBJECTS), M5ClassesDescription(@[__VA_ARGS__])); \
     M5AssertContentClass; \
 })
 
-/* Asserts that the property on each of the objects equals one of the provided values. */
+/* Asserts that the objects (if any) are each subclasses of one of the provided classes, returns object. */
+#define M5AssertContentClassIfValue(OBJECTS, ...) \
+({ \
+    id<NSFastEnumeration> M5AssertContentClassIfValue = OBJECTS; \
+    if (M5NotEmpty(M5AssertContentClassIfValue)) { \
+        NSAssert(M5ObjectsAreOfAnyClass(M5AssertContentClassIfValue, @[__VA_ARGS__]), @"Contents of '%@' must be one of: %@", M5MacroStringify(OBJECTS), M5ClassesDescription(@[__VA_ARGS__])); \
+    } \
+    M5AssertContentClassIfValue; \
+})
+
+/* Asserts that the property on each of the (not empty) objects equals one of the provided values. */
 #define M5AssertContentProperty(OBJECTS, PROPERTY, ...) \
 ({ \
     id<NSFastEnumeration> M5AssertContentProperty = OBJECTS; \
-    M5AssertNotEmpty(M5AssertContentProperty); \
-    NSAssert(M5ObjectsPropertyEqualsAnyValue(M5AssertContentProperty, PROPERTY, @[__VA_ARGS__]), @"'%@' on contents of '%@' must equal one of: %@", NSStringFromSelector(PROPERTY), M5MacroStringify(OBJECT), M5ObjectsDescription(@[__VA_ARGS__])); \
+    NSAssert(M5NotEmpty(M5AssertContentProperty) && M5ObjectsPropertyEqualsAnyValue(M5AssertContentProperty, PROPERTY, @[__VA_ARGS__]), @"'%@' on contents of (not empty!) '%@' must equal one of: %@", NSStringFromSelector(PROPERTY), M5MacroStringify(OBJECT), M5ObjectsDescription(@[__VA_ARGS__])); \
     M5AssertContentProperty; \
 })
 
-/* Asserts that each of the objects conforms to all of the provided protocols. */
+/* Asserts that the property on each of the objects (if any) equals one of the provided values. */
+#define M5AssertContentPropertyIfValue(OBJECTS, PROPERTY, ...) \
+({ \
+    id<NSFastEnumeration> M5AssertContentPropertyIfValue = OBJECTS; \
+    if (M5NotEmpty(M5AssertContentPropertyIfValue)) { \
+        NSAssert(M5ObjectsPropertyEqualsAnyValue(M5AssertContentPropertyIfValue, PROPERTY, @[__VA_ARGS__]), @"'%@' on contents of '%@' must equal one of: %@", NSStringFromSelector(PROPERTY), M5MacroStringify(OBJECT), M5ObjectsDescription(@[__VA_ARGS__])); \
+    } \
+    M5AssertContentPropertyIfValue; \
+})
+
+/* Asserts that each of the (not empty) objects conforms to all of the provided protocols. */
 #define M5AssertContentProtocol(OBJECTS, ...) \
 ({ \
     id<NSFastEnumeration> M5AssertContentProtocol = OBJECTS; \
-    M5AssertNotEmpty(M5AssertContentProtocol); \
-    NSAssert(M5ObjectsConformToProtocols(M5AssertContentProtocol, @[__VA_ARGS__]), @"Contents of '%@' must conform to all of: %@", M5MacroStringify(OBJECTS), M5ProtocolsDescription(@[__VA_ARGS__])); \
+    NSAssert(M5NotEmpty(M5AssertContentProtocol) && M5ObjectsConformToProtocols(M5AssertContentProtocol, @[__VA_ARGS__]), @"Contents of (not empty!) '%@' must conform to all of: %@", M5MacroStringify(OBJECTS), M5ProtocolsDescription(@[__VA_ARGS__])); \
     M5AssertContentProtocol; \
+})
+
+/* Asserts that each of the objects (if there are any) conforms to all of the provided protocols. */
+#define M5AssertContentProtocolIfValue(OBJECTS, ...) \
+({ \
+    id<NSFastEnumeration> M5AssertContentProtocolIfValue = OBJECTS; \
+    if (M5NotEmpty(M5AssertContentProtocolIfValue)) { \
+        NSAssert(M5ObjectsConformToProtocols(M5AssertContentProtocolIfValue, @[__VA_ARGS__]), @"Contents of '%@' must conform to all of: %@", M5MacroStringify(OBJECTS), M5ProtocolsDescription(@[__VA_ARGS__])); \
+    } \
+    M5AssertContentProtocolIfValue; \
 })
 #else
 #define M5Assert(CASE)
 #define M5AssertValue(OBJECT) ({ OBJECT; })
 #define M5AssertNotEmpty(OBJECT) ({ OBJECT; })
+#define M5AssertNotEmptyIfValue(OBJECT) ({ OBJECT; })
 #define M5AssertCValue(OBJECT) ({ OBJECT; })
 #define M5AssertClass(OBJECT, ...) ({ OBJECT; })
+#define M5AssertClassIfValue(OBJECT, ...) ({ OBJECT; })
 #define M5AssertProperty(OBJECT, PROPERTY, ...) ({ OBJECT; })
+#define M5AssertPropertyIfValue(OBJECT, PROPERTY, ...) ({ OBJECT; })
 #define M5AssertProtocol(OBJECT, ...) ({ OBJECT; })
+#define M5AssertProtocolIfValue(OBJECT, ...) ({ OBJECT; })
 #define M5AssertContentClass(OBJECTS, ...) ({ OBJECTS; })
+#define M5AssertContentClassIfValue(OBJECTS, ...) ({ OBJECTS; })
 #define M5AssertContentProperty(OBJECTS, PROPERTY, ...) ({ OBJECTS; })
+#define M5AssertContentPropertyIfValue(OBJECTS, PROPERTY, ...) ({ OBJECTS; })
 #define M5AssertContentProtocol(OBJECTS, ...) ({ OBJECTS; })
+#define M5AssertContentProtocolIfValue(OBJECTS, ...) ({ OBJECTS; })
 #endif
 
 /* Get selector name (e.g. for KVO use) in a safe way. */

@@ -196,7 +196,9 @@ BOOL M5IsEmpty(id object) {
     if ([object conformsToProtocol:@protocol(NSFastEnumeration)]) {
         int i = 0;
         for (id obj in object) {
-            i++;
+            if (obj) {
+                i++;
+            }
         }
         return !i;
     }
