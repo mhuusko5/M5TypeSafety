@@ -15,7 +15,7 @@
 ({ \
     if (!(CONDITION)) { \
         NSLog(@"%@", MESSAGE); \
-        [NSException raise:@"M5Assertion" format:MESSAGE]; \
+        [NSException raise:@"M5Assertion" format:@"%@", MESSAGE]; \
     } \
 })
 
@@ -23,7 +23,7 @@
 /* Asserts with case as message of assertion. */
 #define M5Assert(CASE) \
 ({ \
-    NSString *M5AssertMessage = [NSString stringWithFormat:@"M5Assert: %@ should be true.", _M5MacroStringify(CASE)]; \
+    NSString *M5AssertMessage = [NSString stringWithFormat:@"M5Assert: '%@' should be true.", _M5MacroStringify(CASE)]; \
     _M5Assert(CASE, M5AssertMessage); \
 })
 
