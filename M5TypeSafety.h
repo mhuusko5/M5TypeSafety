@@ -204,9 +204,6 @@
 #define M5AssertContentProtocolIfValue(OBJECTS, ...) ({ OBJECTS; })
 #endif
 
-/* Get selector name (e.g. for KVO use) in a safe way. */
-#define M5SelectorName(SELECTOR) (NSStringFromSelector(@selector(SELECTOR)))
-
 #ifndef NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_BEGIN _Pragma("clang assume_nonnull begin")
 #define NS_ASSUME_NONNULL_END _Pragma("clang assume_nonnull end")

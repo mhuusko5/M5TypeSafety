@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'M5TypeSafety'
-  s.version = '1.0.8'
+  s.version = '1.0.9'
   s.license = { :type => 'MIT', :file => 'LICENSE' }
   s.summary = 'Obj-C macros/functions (mostly for debugging) for applying runtime type safety.'
   s.homepage = 'https://github.com/mhuusko5/M5TypeSafety'
